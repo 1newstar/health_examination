@@ -1,0 +1,71 @@
+#执行fglprofile
+if [ "x$TIPTOPPROFILE" = x ]
+ then
+  if [ -f /u1/usr/profile/profile.topprod ]
+   then
+    . /u1/usr/profile/profile.topprod
+   elif [ -f /u1/usr/tiptop/.profile ]
+    then
+     num=`cat /u1/usr/tiptop/.profile |grep '^ORACLE_HOME' |wc -l`
+     if [ $num -gt 1 ]
+      then
+       HOMENUM=`cat /u1/usr/tiptop/.profile |awk '/^ORACLE_HOME/{print NR}' |sed -n '$p'`
+       cat /u1/usr/tiptop/.profile |sed -n ''$HOMENUM',$p' |sed '/esac/d' |sed /';;'/d >/tmp/medtiptop
+       . /tmp/medtiptop
+      else
+       . /u1/usr/tiptop/.profile
+     fi
+   elif [ -f /u1/topprod/.profile ]
+    then
+     num=`cat /u1/topprod/.profile |grep '^ORACLE_HOME' |wc -l`
+     if [ $num -gt 1 ]
+      then
+       HOMENUM=`cat /u1/topprod/.profile |awk '/^ORACLE_HOME/{print NR}' |sed -n '$p'`
+       cat /u1/topprod/.profile |sed -n ''$HOMENUM',$p' |sed '/esac/d' |sed /';;'/d >/tmp/medtiptop
+       . /tmp/medtiptop
+      else
+       . /u1/topprod/.profile
+     fi
+  fi
+ else
+  . $TIPTOPPROFILE
+fi
+LANG=en_US;export LANG
+ENDTIME=`date +%y%m%d`2359
+CURTIME=`date +%y%m%d%H%M`
+while [ $CURTIME -lt $ENDTIME ]
+ do 
+  ps -ef | grep flmprg |grep -v grep
+  if [ $? -eq 0 ]  #判断flm进程是否存在
+   then
+    :
+   else 
+    which flmprg 2>/tmp/flmrecord.log
+    cat /tmp/flmrecord.log |sed -n '1p' |grep which
+    if [ $? -eq 0 ]  #flm进程不存在则查找flm目录并启动flm进程
+     then
+      if [ "x$FLMPATH" != x ]
+       then
+        . $FLMPATH/envflm
+        flmprg -r
+       elif [ -f /u1/genero/flm/envflm ]
+        then
+         . /u1/genero/flm/envflm
+         flmprg -r
+       elif [ -f /u1/flm/envflm ]
+        then
+         . /u1/flm/envflm
+         flmprg -r
+       elif [ -f /u1/genero.flm/envflm ]
+        then
+         . /u1/genero.flm/envflm
+         flmprg -r
+      fi
+     else  #如果在path变量中能够找到flmprg执行目录则直接启动flmprg进程 
+      flmprg -r
+    fi
+    echo `date +%y%m%d%H%M%S` >>$TOP/log/flmprglog.log  #打印flm进程停止时的异常时间
+  fi
+  sleep 5
+  CURTIME=`date +%y%m%d%H%M`
+done

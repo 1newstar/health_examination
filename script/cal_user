@@ -1,0 +1,12 @@
+#!/bin/ksh
+. /u1/usr/profile/profile.topprod
+a=`date +%H:%M:%S`
+b=`fglWrt -a info users 2>&1|grep User|awk '{print $3}'|awk -F / '{print $1}'`
+c=`fglWrt -a info users 2>&1|grep Process|wc -l`
+echo -e $a'\t'$b'\t'$c >> $TEMPDIR/user_log/`date +%Y%m%d`.xlsx
+
+
+
+
+
+

@@ -1,0 +1,1 @@
+ps -ef|grep fglrun|grep -v 'sh -c'|grep ?|grep -E 'Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec'

@@ -1,0 +1,44 @@
+SELECT tab_row.owner,table_name,num_rows,tbl_size FROM
+(SELECT owner,table_name,num_rows FROM dba_all_tables 
+WHERE table_name NOT LIKE '%HIS' 
+AND num_rows > 500000
+) tab_row,
+(SELECT owner,segment_name,SUM(bytes)/1024/1024 sizeM FROM dba_segments
+WHERE segment_name NOT LIKE '%HIS' AND 
+  
+GROUP BY owner,segment_name) tab_size
+WHERE tab_row.owner||tab_row.table_name = tab_size.owner||tab_size.segment_name
+
+ORDER BY owner,sizeM DESC
+
+
+
+
+select 
+    b.owner,
+    b.segment_name,
+    a.num_rows,
+    b.bytes/1024/1024||'M' as table_size
+from dba_all_tables a
+join dba_segments b
+on   a.owner = b.owner
+and  a.table_name = b.segment_name
+where (a.num_rows > 500000 or SUM(b.bytes)/1024/1024||'M' > 100)
+and  a.table_name NOT LIKE '%HIS'
+and  b.segment_type IN ('TABLE','TABLE PARTITION','TABLE SUBPARTITION','LOBSEGMENT')
+group by  b.owner, b.segment_name, a.num_rows
+ORDER BY owner,table_size DESC;
+
+select a.object_owner, a.object_name,c.BYTES/1024/1024,sum(b.EXECUTIONS)
+from
+     (select object_owner,object_name,HASH_VALUE
+ from v$sql_plan
+  where object_owner not in ('SYS', 'SYSTEM','DBSNMP','OUTLN','PERFSTAT','PUBLIC','SQLAB','WMSYS') and OPTIONS = 'FULL'
+  group by object_owner,object_name,HASH_VALUE) a,
+     v$sqlarea b, dba_segments c
+  where a.HASH_VALUE = b.HASH_VALUE
+        and a.OBJECT_OWNER=c.owner
+        and a.object_name=c.segment_name
+       and c.segment_type='TABLE'
+ group by a.object_owner, a.object_name,c.BYTES/1024/1024
+   order by sum(b.EXECUTIONS);

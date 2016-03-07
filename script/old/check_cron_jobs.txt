@@ -1,0 +1,23 @@
+#!/bin/ksh -ex
+
+
+THIS=`basename`
+
+OUTPUT=$HOME/${THIS}.txt
+> $OUTPUT
+
+
+cd /var/spool/cron
+
+for file in $(ls)
+do
+echo "################################################" >> $OUTPUT
+echo "#$file"                                           >> $OUTPUT
+echo "################################################" >> $OUTPUT
+cat $file                                               >> $OUTPUT
+echo " "                                                >> $OUTPUT
+done
+
+
+
+exit

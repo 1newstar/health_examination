@@ -1,0 +1,136 @@
+[root@erpserver root]# cat /proc/cpuinfo  | grep "model name" 
+model name      :                   Intel(R) Xeon(TM) CPU 3.20GHz
+model name      :                   Intel(R) Xeon(TM) CPU 3.20GHz
+model name      :                   Intel(R) Xeon(TM) CPU 3.20GHz
+model name      :                   Intel(R) Xeon(TM) CPU 3.20GHz
+[root@erpserver root]# getconf LONG_BIT
+64
+
+memory
+                Size: 2048 MB
+                Size: 2048 MB
+                Size: 2048 MB
+                Size: 2048 MB
+                Size: 2048 MB
+                Size: 2048 MB
+                Size: 2048 MB
+                Size: 2048 MB
+
+400 MHz (2.5 ns) DDR
+400 MHz (2.5 ns) DDR
+400 MHz (2.5 ns) DDR
+400 MHz (2.5 ns) DDR
+400 MHz (2.5 ns) DDR
+400 MHz (2.5 ns) DDR
+400 MHz (2.5 ns) DDR
+400 MHz (2.5 ns) DDR
+
+
+Broadcom Corporation|NetXtreme BCM5703 Gigabit Ethernet
+
+erpserver
+Red Hat Enterprise Linux AS release 3 (Taroon Update 6)
+</u1/usr/tiptop> id
+uid=501(tiptop) gid=402(tiptop) groups=402(tiptop),401(dba)
+</u1/usr/tiptop> echo $LANG
+zh_CN.gb18030
+
+2010-07-09 10:39:15
+
+所有默认账户密码均已经不是初始密码。
+
+cat /etc/passwd | awk -F: '{if($3==0){print $1"\t"$3}}'
+root    0
+
+tail -10 /etc/group
+ldap:x:55:
+quaggavty:x:102:
+quagga:x:92:
+radvd:x:75:
+radiusd:x:95:
+hpsmh:x:79:
+oinstall:x:400:
+dba:x:401:oracle,tiptop,topgui,toptest
+tiptop:x:402:joanne
+joanne:x:506:
+
+
+ cat /etc/hosts
+# Do not remove the following line, or various programs
+# that require network functionality will fail.
+192.168.50.2    erpserver   
+
+
+who | wc -l
+    117
+
+
+################################################
+#da1030
+################################################
+4 11 * * * /u1/topprod/tiptop/p_cron/da1030/p_cron_axmr600.13776.1
+ 
+################################################
+#da1035
+################################################
+19 16 * * * /u1/topprod/tiptop/p_cron/da1035/p_cron_amsp500.11288.1
+ 
+################################################
+#da1039
+################################################
+7 13 * * * /u1/topprod/tiptop/p_cron/da1039/p_cron_aimp379.32488.1
+ 
+################################################
+#dc1004
+################################################
+37 17 * * * /u1/topprod/tiptop/p_cron/dc1004/p_cron_aimp620.21815.1
+ 
+################################################
+#dc1046
+################################################
+22 9 * * * /u1/topprod/tiptop/p_cron/dc1046/p_cron_aimp379.18721.1
+ 
+################################################
+#ds5030
+################################################
+45 10 * * * /u1/topprod/tiptop/p_cron/ds5030/p_cron_apmp910.10555.1
+49 10 * * * /u1/topprod/tiptop/p_cron/ds5030/p_cron_apmp910.10555.2
+ 
+################################################
+#ds6898
+################################################
+56 9 * * * /u1/topprod/tiptop/p_cron/ds6898/p_cron_csfr002.30668.1
+ 
+################################################
+#dy3723
+################################################
+18 17 * * * /u1/topprod/tiptop/p_cron/dy3723/p_cron_axmp620.4659.1
+ 
+################################################
+#tiptop
+################################################
+0 23 * * * sh /u3/backup/tools/backup.sh
+*/1 * * * * sh /u1/tmt/script/ap_db.sh
+0 0 * * * /u1/tmt/script/nmon_x86_64_rhel4 -f -r -d -m /u1/tmt/log/monitor -s 60 -c 1440
+
+[root@erpserver root]# cat /etc/crontab 
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=root
+HOME=/
+
+# run-parts
+01 * * * * root run-parts /etc/cron.hourly
+02 4 * * * root run-parts /etc/cron.daily
+22 4 * * 0 root run-parts /etc/cron.weekly
+42 4 1 * * root run-parts /etc/cron.monthly
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,62 @@
+#Setting the Oracle Instance and Language Type
+. /u1/usr/oracle/.profile
+
+export ORACLE_SID=topprod
+export LANG=en_US
+ans=`date|awk '{print $1}'`
+
+case $ans in
+   Mon) PWD=/u3/backup/Mon;export PWD;;
+   Tue) PWD=/u3/backup/Tue;export PWD;;
+   Wed) PWD=/u3/backup/Wed;export PWD;;
+   Thu) PWD=/u3/backup/Thu;export PWD;;
+   Fri) PWD=/u3/backup/Fri;export PWD;;
+   Sat) PWD=/u3/backup/Sat;export PWD;;
+   Sun) PWD=/u3/backup/Sun;export PWD;;
+esac
+
+cd $PWD
+TIME=`date '+%Y%m%d'`
+#Delete all the files in the directory
+rm -rf *.gz *.log *.list
+
+
+echo '-------------- '`date +%H:%M:%S`' BACKUP START --------------' >> backup.log
+
+#Begin to package the AP system
+echo '-------------- '`date +%H:%M:%S`' TAR SYSTEM.TAR.GZ --------------' >> backup.log
+tar czvf system.tar.gz /etc/*passwd* /etc/*group* /etc/*shadow* >> backup.log 2>&1
+echo '-------------- '`date +%H:%M:%S`' TAR TIPTOP.TAR.GZ --------------' >> backup.log
+tar czvf tiptop.tar.gz /u1/topprod/tiptop >> backup.log 2>&1
+echo '-------------- '`date +%H:%M:%S`' TAR TOPCUST.TAR.GZ --------------' >> backup.log
+tar czvf topcust.tar.gz /u1/topprod/topcust >> backup.log 2>&1
+echo '-------------- '`date +%H:%M:%S`' TAR GENERO.TAR.GZ --------------' >> backup.log
+tar czvf genero.tar.gz /u1/genero* >> backup.log 2>&1
+echo '-------------- '`date +%H:%M:%S`' TAR USR.TAR.GZ --------------' >> backup.log
+tar czvf usr.tar.gz /u1/usr >> backup.log 2>&1
+echo '-------------- '`date +%H:%M:%S`' TAR ORACLE.TAR.GZ --------------' >> backup.log
+tar czvf oracle.tar.gz /u2/oracle/product/11.2.0/dbhome_1 >> backup.log 2>&1
+
+#Generate the export SQL script
+echo '-------------- '`date +%H:%M:%S`' SQLPLUS --------------' >> backup.log
+sqlplus system/manager@topprod <<%%
+SPOOL backup.out;
+SELECT  distinct d.username,d.user_id,d.DEFAULT_TABLESPACE FROM dba_users d,ds.azp_file a
+WHERE d.default_tablespace='DBS1' and d.username NOT LIKE 'DS_REPORT%'
+and lower(d.username) = a.azp03;
+SPOOL OFF ;
+%%
+echo '-------------- '`date +%H:%M:%S`' SQLPLUS OK  --------------' >> backup.log
+
+#Begin to export the data user by user
+for i in `cat backup.out|grep DBS1|grep -v WHERE|awk '{print $1}'`
+do
+  echo '-------------- '`date +%H:%M:%S`' EXPORT '$i' --------------' >> backup.log
+  exp system/manager@topprod file=exp"_"$i"_"$TIME.dmp owner=$i direct=y >> backup.log 2>&1
+  gzip exp"_"$i"_"$TIME.dmp
+done
+rm backup.out
+
+chown tiptop:tiptop *
+
+echo '-------------- '`date +%H:%M:%S`' BACKUP FINISH --------------' >> backup.log

@@ -1,0 +1,122 @@
+cd $TEMPDIR
+rm -f tsp.sql
+rm -f tsp.out
+rm -f tsp.list
+
+echo "set wrap off" >> tsp.sql
+echo "set linesize 9999" >> tsp.sql
+echo "select 'prc_user',substr(status,1,7),to_char(sysdate,'YYYY-MM-DD_HH24:MM:SS') datetime,'IO',rownum,percent||'%',substrb(process,1,7),username,sid,serial#,substrb(osuser,1,7),substr(program,1,16),machine,to_char(logon_time,'YYYY-MM-DD_HH24:MM:SS') logontime,substrb(zx02,1,6),substrb(gem02,1,6) 
+from (select status,percent,sid,serial#,process,username,osuser,program,machine,zx02,gem02,logon_time 
+from v\$session, (select sid sid_top,sum(value) weight,round((ratio_to_report(sum(value)) OVER () * 100), 2) percent 
+from v\$sesstat where statistic# in (12) and sid in (select sid 
+from v\$session where user# > 0) group by sid) tempa,(select zx01,zx02,gem02 
+from ds.zx_file,ds.gem_file where zx03=gem01(+)) tempb where sid = sid_top and osuser=zx01(+) order by percent desc) where rownum <= 5;" >> tsp.sql
+sqlplus 'sys/sys@topprod as sysdba' <tsp.sql  > tsp.list
+rm -f tsp.sql
+
+echo "--------------------------------CPU------------------------------" >> tsp.out
+for i in `cat tsp.list |grep "prc_user" | grep -v "ROWNUM" |awk '{ print $1"|"$2"|"$3"|"$4"|"$5"|"$6"|"$7"|"$8"|"$9"|"$10"|"$11"|"$12"|"$13"|"$14"|"$15"|"$16"|"$17"|"$18 }'`
+do
+j=`echo $i | cut -f7 -d "|"`
+k=`ps -ef | grep $j | grep -v "grep"| awk '{print $9}'`
+m=`echo $k |tr "\/" "\n" |wc -l`
+n=`echo $k | cut -f $m -d "/" | cut -c 1-7`
+echo $n"|"$i >> tsp.out
+done
+
+echo "set wrap off" >> tsp.sql
+echo "set linesize 9999" >> tsp.sql
+echo "select 'prc_user',substr(status,1,7),to_char(sysdate,'YYYY-MM-DD_HH24:MM:SS') datetime,'IO',rownum,percent||'%',substrb(process,1,7),username,sid,serial#,substrb(osuser,1,7),substr(program,1,16),machine,to_char(logon_time,'YYYY-MM-DD_HH24:MM:SS') logontime,substrb(zx02,1,6),substrb(gem02,1,6) 
+from (select status,percent,sid,serial#,process,username,osuser,program,machine,zx02,gem02,logon_time 
+from v\$session, (select sid sid_top,sum(value) weight,round((ratio_to_report(sum(value)) OVER () * 100), 2) percent 
+from v\$sesstat where statistic# in (42,46,9) and sid in (select sid 
+from v\$session where user# > 0) group by sid) tempa,(select zx01,zx02,gem02 
+from ds.zx_file,ds.gem_file where zx03=gem01(+)) tempb where sid = sid_top and osuser=zx01(+) order by percent desc) where rownum <= 5;" >> tsp.sql
+sqlplus 'sys/sys@topprod as sysdba' <tsp.sql  > tsp.list
+rm -f tsp.sql
+
+echo "----------------------------------IO---------------------------------" >> tsp.out
+for i in `cat tsp.list |grep "prc_user" | grep -v "ROWNUM" |awk '{ print $1"|"$2"|"$3"|"$4"|"$5"|"$6"|"$7"|"$8"|"$9"|"$10"|"$11"|"$12"|"$13"|"$14"|"$15"|"$16"|"$17"|"$18 }'`
+do
+j=`echo $i | cut -f7 -d "|"`
+k=`ps -ef | grep $j | grep -v "grep"| awk '{print $9}'`
+m=`echo $k |tr "\/" "\n" |wc -l`
+n=`echo $k | cut -f $m -d "/" | cut -c 1-7`
+echo $n"|"$i >> tsp.out
+done
+
+echo "set wrap off" >> tsp.sql
+echo "set linesize 9999" >> tsp.sql
+echo "select 'prc_user',substr(status,1,7),to_char(sysdate,'YYYY-MM-DD_HH24:MM:SS') datetime,'MEM',rownum,percent||'%',process,username,sid,serial#,osuser,substr(program,1,16),machine,to_char(logon_time,'YYYY-MM-DD_HH24:MM:SS') logontime,substrb(zx02,1,6),substrb(gem02,1,6) 
+from (select status,percent,sid,serial#,process,username,osuser,program,machine,zx02,gem02,logon_time 
+from v\$session, (select sid sid_top,sum(value) weight,round((ratio_to_report(sum(value)) OVER () * 100), 2) percent 
+from v\$sesstat where statistic# in (25,20,324) and sid in (select sid 
+from v\$session where user# > 0) group by sid) tempa,(select zx01,zx02,gem02 
+from ds.zx_file,ds.gem_file where zx03=gem01(+)) tempb where sid = sid_top and osuser=zx01(+) order by percent desc) where rownum <= 5;" >> tsp.sql
+sqlplus 'sys/sys@topprod as sysdba' <tsp.sql  > tsp.list
+rm -f tsp.sql
+
+echo "--------------------------------MEMORY-------------------------------" >> tsp.out
+for i in `cat tsp.list |grep "prc_user" | grep -v "ROWNUM" |awk '{ print $1"|"$2"|"$3"|"$4"|"$5"|"$6"|"$7"|"$8"|"$9"|"$10"|"$11"|"$12"|"$13"|"$14"|"$15"|"$16"|"$17"|"$18  }'`
+do
+j=`echo $i | cut -f7 -d "|"`
+k=`ps -ef | grep $j | grep -v "grep"| awk '{print $9}'`
+m=`echo $k |tr "\/" "\n" |wc -l`
+n=`echo $k | cut -f $m -d "/" | cut -c 1-7`
+echo $n"|"$i >> tsp.out
+done
+
+
+echo "set wrap off" >> tsp.sql
+echo "set linesize 9999" >> tsp.sql
+echo "select 'prc_user',substr(status,1,7),to_char(sysdate,'YYYY-MM-DD_HH24:MM:SS') datetime,'NET',rownum,percent||'%',process,username,sid,serial#,osuser,substr(program,1,16),machine,to_char(logon_time,'YYYY-MM-DD_HH24:MM:SS') logontime,substrb(zx02,1,6),substrb(gem02,1,6) 
+from (select status,percent,sid,serial#,process,username,osuser,program,machine,zx02,gem02,logon_time 
+from v\$session, (select sid sid_top,sum(value) weight,round((ratio_to_report(sum(value)) OVER () * 100), 2) percent 
+from v\$sesstat where statistic# in (336,339,335,338,337,340) and sid in (select sid 
+from v\$session where user# > 0) group by sid) tempa,(select zx01,zx02,gem02 
+from ds.zx_file,ds.gem_file where zx03=gem01(+)) tempb where sid = sid_top and osuser=zx01(+) order by percent desc) where rownum <= 5;" >> tsp.sql
+sqlplus 'sys/sys@topprod as sysdba' <tsp.sql  > tsp.list
+rm -f tsp.sql
+
+echo "---------------------------------NET--------------------------------" >> tsp.out
+for i in `cat tsp.list |grep "prc_user" | grep -v "ROWNUM" |awk '{ print $1"|"$2"|"$3"|"$4"|"$5"|"$6"|"$7"|"$8"|"$9"|"$10"|"$11"|"$12"|"$13"|"$14"|"$15  }'`
+do
+j=`echo $i | cut -f7 -d "|"`
+k=`ps -ef | grep $j | grep -v "grep"| awk '{print $9}'`
+m=`echo $k |tr "\/" "\n" |wc -l`
+n=`echo $k | cut -f $m -d "/" | cut -c 1-7`
+echo $n"|"$i >> tsp.out
+done
+
+
+echo "set wrap off" >> tsp.sql
+echo "set linesize 9999" >> tsp.sql
+echo "select 'prc_user',substr(status,1,7),to_char(sysdate,'YYYY-MM-DD_HH24:MM:SS') datetime,'TIME',rownum,round((sysdate-logon_time)*24,2) hours,process,username,sid,serial#,osuser,substr(program,1,16),machine,to_char(logon_time,'YYYY-MM-DD_HH24:MM:SS') logontime,substrb(zx02,1,6),substrb(gem02,1,6) 
+from (select status,percent,sid,serial#,process,username,osuser,program,machine,zx02,gem02,logon_time 
+from v\$session, (select sid sid_top,sum(value) weight,sum(value) percent 
+from v\$sesstat where statistic# in (328) and sid in (select sid 
+from v\$session where user# > 0) group by sid) tempa,(select zx01,zx02,gem02 
+from ds.zx_file,ds.gem_file where zx03=gem01(+)) tempb where sid = sid_top and osuser=zx01(+) order by logon_time) where rownum <= 10;" >> tsp.sql
+sqlplus 'sys/sys@topprod as sysdba' <tsp.sql  > tsp.list
+rm -f tsp.sql
+
+echo "---------------------------------TIME--------------------------------" >> tsp.out
+for i in `cat tsp.list |grep "prc_user" | grep -v "ROWNUM" |awk '{ print $1"|"$2"|"$3"|"$4"|"$5"|"$6"|"$7"|"$8"|"$9"|"$10"|"$11"|"$12"|"$13"|"$14"|"$15"|"$16"|"$17"|"$18  }'`
+do
+j=`echo $i | cut -f7 -d "|"`
+k=`ps -ef | grep $j | grep -v "grep"| awk '{print $9}'`
+m=`echo $k |tr "\/" "\n" |wc -l`
+n=`echo $k | cut -f $m -d "/" | cut -c 1-7`
+echo $n"|"$i >> tsp.out
+done
+
+if [ "$1" = ""  ] ; then
+echo  "排序\t进程\t作业\t执行者\tSID\tSERIAL#\t姓名\t部门\t工厂\t\t开始时间\t状态\t耗用"
+cat tsp.out | grep -E '(fglrun|CPU|IO|MEMORY|NET|TIME)' | awk  -F '[|]+' '{print $6"\t"$8"\t"$1"\t"$12"\t"$10"\t"$11"\t"$16"\t"$17"\t"$9"\t"$15"\t"$3"\t"$7}'
+rm -f tsp.out
+fi
+
+
+rm -f tsp.sql
+rm -f tsp.list
+

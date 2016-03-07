@@ -1,0 +1,23 @@
+0 0 * * * /u1/tmt/script/nmon_x86_64_rhel4 -f -r -d -m /u1/tmt/log/monitor -s 60 -c 1440
+*/1 * * * * sh /u1/tmt/script/ap_db.sh
+
+#!/bin/ksh -eu
+
+#--initio the output file
+rm -f 1.out
+rm -f 2.out
+printf "Process_name\tCount\n" >  2.out
+printf "------------\t-----\n" >> 2.out
+
+#--gather the error info
+for file in $(ls)
+do
+
+LOG_NAME=${file%%.*}
+PRC_NAME=${LOG_NAME##*_}
+echo $PRC_NAME >> 1.out
+
+done
+
+sort 1.out | uniq -c | awk '{print $2"\t\t"$1}' >> 2.out
+~
